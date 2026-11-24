@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fake Review Detector</title>
+  <meta name="description" content="Paste a product review and find out how likely it is to be fake.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕵️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>Fake Review Detector</h1>
+      <p class="sub">Paste a review. The model scores how likely it is to be fake and shows the clues it used.</p>
+    </header>
+
+    <section class="card">
+      <label for="review" class="lbl">Review text</label>
+      <textarea id="review" maxlength="5000" rows="6" placeholder="Paste a product, hotel or restaurant review here..."></textarea>
+      <div class="row">
+        <span id="count" class="muted">0 / 5000</span>
+        <div class="btns">
+          <button id="clearBtn" class="ghost" type="button">Clear</button>
+          <button id="analyzeBtn" class="primary" type="button">Analyze review</button>
+        </div>
+      </div>
+      <div class="examples">
+        <span class="muted">Try an example:</span>
+        <button class="chip" data-ex="I bought these headphones 3 months ago. The sound is good for the price, but the ear cushions started peeling after 6 weeks. Support replaced them in 4 days. Decent overall.">Detailed review</button>
+        <button class="chip" data-ex="BEST PRODUCT EVER!!! Amazing quality, perfect in every way. Highly recommend to everyone, you must buy this now!!!">Over-the-top praise</button>
+        <button class="chip" data-ex="Terrible. Complete waste of money, worst product ever, total scam. Do not buy!!!">Angry rant</button>
+      </div>
+    </section>
+
+    <section id="result" class="card hidden" aria-live="polite">
+      <div class="verdict-row">
+        <span id="verdict" class="badge"></span>
+        <span id="pct" class="pct"></span>
+      </div>
+      <div class="gauge" aria-hidden="true"><div id="fill" class="fill"></div></div>
+      <div class="scale"><span>Genuine</span><span>Fake</span></div>
+
+      <div class="cols">
+        <div><h3>Warning signs</h3><ul id="warn" class="list"></ul></div>
+        <div><h3>Trust signs</h3><ul id="good" class="list"></ul></div>
+      </div>
+      <h3>Words that strongly influenced the model</h3>
+      <div class="words">
+        <div><span class="muted">Toward fake</span><div id="wFake" class="chips"></div></div>
+        <div><span class="muted">Toward genuine</span><div id="wReal" class="chips"></div></div>
+      </div>
+    </section>
+
+    <p id="error" class="error hidden" role="alert"></p>
+
+    <footer class="muted">
+      {% if metrics %}Model accuracy on held-out sample data: {{ (metrics.accuracy * 100)|round(1) }}% ({{ metrics.test_size }} test reviews). {% endif %}
+      Results are probabilities, not proof. Use them as one signal alongside your own judgment.
+    </footer>
+  </main>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
